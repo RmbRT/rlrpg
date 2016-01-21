@@ -78,21 +78,21 @@ namespace rlrpg
 			for(EnchantmentDesc const& ench : db.enchantment_descs())
 				if(ench.allowed_for(m_type) && size_t(ench.rarity()) <= size_t(rarity))
 					suitable_enchantments++;
+			if(suitable_enchantments)
+				for(size_t ench = 0; ench < ench_count; ench++)
+				{
+					size_t index = rng.roll_dice(suitable_enchantments);
 
-			for(size_t ench = 0; ench < ench_count; ench++)
-			{
-				size_t index = rng.roll_dice(suitable_enchantments);
-
-				for(EnchantmentDesc const& ench: db.enchantment_descs())
-					if(ench.allowed_for(m_type) && size_t(ench.rarity()) <= size_t(rarity) && !index--)
-					{
-						enchantments.push_back(
-							ench.generate(
-								gen.gen_id(),
-								Generated(enchantments.size(), gen.gen_luck())));
-						break;
-					}
-			}
+					for(EnchantmentDesc const& ench: db.enchantment_descs())
+						if(ench.allowed_for(m_type) && size_t(ench.rarity()) <= size_t(rarity) && !index--)
+						{
+							enchantments.push_back(
+								ench.generate(
+									gen.gen_id(),
+									Generated(enchantments.size(), gen.gen_luck())));
+							break;
+						}
+				}
 		}
 
 		/* Create  the instance. */

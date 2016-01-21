@@ -2,6 +2,8 @@
 
 #include "Dice.hpp"
 
+#include <iostream>
+
 namespace rlrpg
 {
 	RNG::RNG(noise_coord_t coord) : m_coord(coord) { }
@@ -22,7 +24,9 @@ namespace rlrpg
 
 	noisef_t RNG::roll_dicef(noisef_t sides)
 	{
-		return rlrpg::roll_dicef(sides, nextCoord());
+		noisef_t ret = rlrpg::roll_dicef(sides, nextCoord());
+		std::cout << ret << '\n';
+		return ret;
 	}
 	noisef_t RNG::roll_dicesf(size_t count, noisef_t sides)
 	{

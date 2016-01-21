@@ -9,6 +9,6 @@ namespace rlrpg
 
 	noisef_t roll_dicef(noisef_t sides, noise_coord_t coord)
 	{
-		return std::fmod(noisef(coord),sides * 8) * (noisef_t(1)/8);
+		return std::fmod(noisef(coord) * sides*8, sides);
 	}
 }
