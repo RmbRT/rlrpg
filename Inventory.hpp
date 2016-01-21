@@ -3,6 +3,7 @@
 
 #include "Equipment.hpp"
 #include <vector>
+#include <memory>
 
 namespace rlrpg
 {

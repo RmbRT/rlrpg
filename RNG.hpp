@@ -14,10 +14,10 @@ namespace rlrpg
 		noise_coord_t nextCoord();
 		
 		size_t roll_dice(size_t sides);
-		size_t roll_dices(size_t sides, size_t count);
+		size_t roll_dices(size_t count, size_t sides);
 
 		noisef_t roll_dicef(noisef_t sides);
-		noisef_t roll_dicesf(noisef_t sides, size_t count);
+		noisef_t roll_dicesf(size_t count, noisef_t sides);
 
 		noise_t nextN();
 		noisef_t nextF();

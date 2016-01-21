@@ -2,12 +2,11 @@
 #define __rlrpg_character_hpp_defined
 
 #include "Attribute.hpp"
-#include "Registered.hpp"
 #include "Inventory.hpp"
 
 namespace rlrpg
 {
-	class Character : public Registered
+	class Character
 	{
 		unsigned m_health;
 
@@ -19,7 +18,7 @@ namespace rlrpg
 		Character(
 			unsigned level,
 			attrs_t const& base_attributes,
-			Inventory const& inventory = Inventory());
+			Inventory const& inventory);
 
 		unsigned health() const;
 		unsigned level() const;

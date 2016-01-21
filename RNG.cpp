@@ -12,7 +12,7 @@ namespace rlrpg
 		return rlrpg::roll_dice(sides, nextCoord());
 	}
 
-	size_t RNG::roll_dices(size_t sides, size_t count)
+	size_t RNG::roll_dices(size_t count, size_t sides)
 	{
 		size_t sum = 0;
 		while(count--)
@@ -24,7 +24,7 @@ namespace rlrpg
 	{
 		return rlrpg::roll_dicef(sides, nextCoord());
 	}
-	noisef_t RNG::roll_dicesf(noisef_t sides, size_t count)
+	noisef_t RNG::roll_dicesf(size_t count, noisef_t sides)
 	{
 		noisef_t sum = 0;
 		while(count--)

@@ -29,6 +29,8 @@ namespace rlrpg
 	typedef math::vec<rlrpgenumcount(Attr), factor_t> factors_t;
 
 	attrs_t apply_attribs(attrs_t const& base, attrs_t const& add, factors_t const& mul);
+
+	factor_t luck_factor(attr_t luck);
 }
 
 #endif

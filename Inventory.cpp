@@ -25,6 +25,7 @@ namespace rlrpg
 		assert(!m_used && "Attempted to put an equipment into a slot that already had an item equipped.");
 
 		m_used = true;
+
 		m_equipment = equipment;
 	}
 
@@ -32,7 +33,7 @@ namespace rlrpg
 	{
 		m_used = false;
 	}
-
+		
 
 	std::vector<Equipment> & Inventory::stored_equipment()
 	{

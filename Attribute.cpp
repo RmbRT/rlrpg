@@ -8,4 +8,9 @@ namespace rlrpg
 		attrs_t added = base+add;
 		return added += math::scale(added, mul);
 	}
+
+	factor_t luck_factor(attr_t luck)
+	{
+		return std::fma(factor_t(luck),factor_t(1)/1000, factor_t(1));
+	}
 }

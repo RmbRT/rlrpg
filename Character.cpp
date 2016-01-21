@@ -9,7 +9,7 @@ namespace rlrpg
 		m_level(level),
 		m_base_attributes(base_attributes),
 		m_inventory(inventory),
-		m_health(base_attributes[size_t(Attr::Health)]) { id(); }
+		m_health(base_attributes[size_t(Attr::Health)]) { }
 
 	unsigned Character::health() const { return m_health; }
 	unsigned Character::level() const { return m_level; }

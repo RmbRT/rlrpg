@@ -4,15 +4,19 @@
 #include "EquipmentType.hpp"
 #include "Attribute.hpp"
 #include "Rarity.hpp"
-#include "Registered.hpp"
+#include "Generated.hpp"
+#include "QualityDurability.hpp"
 
 #include <string>
 
 namespace rlrpg
 {
+	class EnchantmentDesc;
+	class Enchantment;
 
 	class EnchantmentDesc
 	{
+		unsigned m_id;
 		Rarity m_rarity;
 		unsigned m_allowed_flags;
 		
@@ -22,6 +26,7 @@ namespace rlrpg
 		std::string m_name;
 	public:
 		EnchantmentDesc(
+			unsigned id,
 			std::string name,
 			Rarity rarity,
 			unsigned allowed_flags,
@@ -41,14 +46,31 @@ namespace rlrpg
 		factors_t const& mul_range() const;
 
 		std::string const& name() const;
+
+		Enchantment generate(id_t equipment_id, Generated const& gen) const;
 	};
 
-	struct Enchantment : public Registered
+	class Enchantment : public Generated, public QualityDurability
 	{
-		unsigned type;
+		unsigned m_type;
+		id_t m_equipment;
 		
-		attrs_t base_add;
-		factors_t base_mul;
+		attrs_t m_base_add;
+		factors_t m_base_mul;
+	public:
+		Enchantment(
+			Generated const& gen_params,
+			QualityDurability const& quality_durability,
+			id_t equipment,
+			unsigned type,
+			attrs_t const& base_add,
+			factors_t const& base_mul);
+		
+		unsigned type() const;
+		id_t equipment() const;
+
+		attrs_t const& base_add() const;
+		factors_t const& base_mul() const;
 	};
 
 }
