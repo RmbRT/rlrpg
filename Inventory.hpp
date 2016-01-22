@@ -3,7 +3,6 @@
 
 #include "Equipment.hpp"
 #include <vector>
-#include <memory>
 
 namespace rlrpg
 {
@@ -55,6 +54,9 @@ namespace rlrpg
 
 		Equipment * worn(EquipSlot slot);
 		Equipment const * worn(EquipSlot slot) const;
+
+		attrs_t worn_add() const;
+		factors_t worn_mul() const;
 	};
 }
 

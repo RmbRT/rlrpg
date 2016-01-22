@@ -91,6 +91,9 @@ namespace rlrpg
 		attrs_t const& base_add() const;
 		factors_t const& base_mul() const;
 
+		attrs_t enchantments_add() const;
+		factors_t enchantments_mul() const;
+
 		std::vector<Enchantment> const& enchantments() const;
 
 		void enchant(EnchantmentDesc const& enchantment, attr_t luck);

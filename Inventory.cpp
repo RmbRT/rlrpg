@@ -81,4 +81,31 @@ namespace rlrpg
 	{
 		return m_worn[size_t(slot)].equipment();
 	}
+
+	attrs_t Inventory::worn_add() const
+	{
+		attrs_t add(0);
+		for(EquipmentSlot const& es : m_worn)
+			if(Equipment const * eq = es.equipment())
+				if(!eq->broken())
+				{
+					add += eq->base_add() * eq->quality_factor();
+					add += eq->enchantments_add();
+				}
+
+		return add;
+	}
+
+	factors_t Inventory::worn_mul() const
+	{
+		factors_t mul(0);
+		for(EquipmentSlot const& es : m_worn)
+			if(Equipment const * eq = es.equipment())
+				if(!eq->broken())
+				{
+					mul += eq->base_mul() * eq->quality_factor();
+					mul += eq->enchantments_mul();
+				}
+		return mul;
+	}
 }

@@ -62,10 +62,10 @@ namespace rlrpg
 
 		/* Roll the flat stats of the equipment. */
 		for(unsigned i = rlrpgenumcount(Attr); i--;)
-			base_add[i] += rng.roll_dicef(1) * luck_factor * m_add_range[i];
+			base_add[i] += std::fmin(noisef_t(1), rng.roll_dicef(1) * luck_factor) * m_add_range[i];
 		/* Roll the relative stats of the equipment. */
 		for(unsigned i = rlrpgenumcount(Attr); i--;)
-			base_mul[i] += rng.roll_dicef(1) * luck_factor * m_mul_range[i];
+			base_mul[i] += std::fmin(noisef_t(1), rng.roll_dicef(1) * luck_factor) * m_mul_range[i];
 
 		std::vector<Enchantment> enchantments;
 		{	/* Roll the enchantments of the equipment. */
@@ -167,6 +167,24 @@ namespace rlrpg
 	
 	attrs_t const& Equipment::base_add() const { return m_base_add; }
 	factors_t const& Equipment::base_mul() const { return m_base_mul; }
+
+	attrs_t Equipment::enchantments_add() const
+	{
+		attrs_t add(0);
+		for(Enchantment const& ec : m_enchantments)
+			if(!ec.broken())
+				add += ec.base_add() * ec.quality_factor();
+		return add;
+	}
+
+	factors_t Equipment::enchantments_mul() const
+	{
+		factors_t mul(0);
+		for(Enchantment const& ec : m_enchantments)
+			if(!ec.broken())
+				mul += ec.base_mul() * ec.quality_factor();
+		return mul;
+	}
 
 	std::vector<Enchantment> const& Equipment::enchantments() const { return m_enchantments; }
 
