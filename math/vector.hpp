@@ -22,6 +22,7 @@ namespace rlrpg
 		template<unsigned DIM, typename T>
 		struct vec
 		{
+			enum { DIM = DIM };
 			typedef T array[DIM];
 
 			vec() = default;
@@ -167,15 +168,17 @@ namespace rlrpg
 		template<unsigned DIM, typename T, typename U>
 		forceinline vec<DIM,T> &operator*=(vec<DIM,T> &self, U const& factor)
 		{
-			for(T& v: m_v)
-				v *= factor;
-			return *this;
+			for(unsigned i = DIM; i--;)
+				self[i] *= factor;
+			return self;
 		}
 
 		template<unsigned DIM, typename T, typename U>
 		forceinline vec<DIM,T> operator*(vec<DIM,T> const& self, U const& factor)
 		{
-			return vec<DIM,T>(self) *= factor;
+			vec<DIM,T> temp(self);
+			temp *= factor;
+			return temp;
 		}
 
 		template<unsigned DIM, typename T, typename U>
@@ -189,7 +192,7 @@ namespace rlrpg
 		{
 			for(T& v: m_v)
 				v /= factor;
-			return *this;
+			return self;
 		}
 
 		template<unsigned DIM, typename T, typename U>

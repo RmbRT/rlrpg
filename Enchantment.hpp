@@ -3,74 +3,87 @@
 
 #include "EquipmentType.hpp"
 #include "Attribute.hpp"
-#include "Rarity.hpp"
 #include "Generated.hpp"
-#include "QualityDurability.hpp"
+#include "QDValue.hpp"
 
 #include <string>
 
 namespace rlrpg
 {
+	/* Types. */
 	class EnchantmentDesc;
 	class Enchantment;
 
+	/* A descriptor for an enchantment.
+	Stores the enchantment name,
+	possisble equipment types that are compatible with this enchantment,
+	the minimal required character level and
+	the range of bonuses an enchantment of this type can give. */
 	class EnchantmentDesc
 	{
-		unsigned m_id;
-		Rarity m_rarity;
+		/* The id of the enchantment descriptor.
+		Must be identical to the index in the LogicAssets list. */
+		id_t m_id;
+		/* The compatibility flags, regarding EquipmentType.
+		Each EquipmentType has their integer value as bit index. */
 		unsigned m_allowed_flags;
-		
-		attrs_t m_add_min, m_add_range;
-		factors_t m_mul_min, m_mul_range;
-
+		/* The minimal character level needed to wield / generate this enchantment. */
+		level_t m_level;
+		/* The range of attribute bonuses this enchantment can give. */
+		AttributesRange m_attributes;
+		/* The name of this enchantment. */
 		std::string m_name;
 	public:
 		EnchantmentDesc(
-			unsigned id,
+			id_t id,
 			std::string name,
-			Rarity rarity,
 			unsigned allowed_flags,
-			attrs_t const& add_min,
-			attrs_t const& add_range,
-			factors_t const& mul_min,
-			factors_t const& mul_range);
+			level_t level,
+			AttributesRange const& attributes);
 
+		/* Returns whether this enchantment type is allowed for the given equipment type.
+		@param[in] type: The equipment type to test for.
+		@return: Whether an equipment of the given type can have an enchantment of this type. */
 		bool allowed_for(EquipmentType type) const;
 
-		Rarity rarity() const;
-
-		attrs_t const& add_min() const;
-		attrs_t const& add_range() const;
-
-		factors_t const& mul_min() const;
-		factors_t const& mul_range() const;
-
+		/* Returns the minimal character level required
+		to wield / generate this type of enchantment. */
+		level_t level() const;
+		/* Returns the attribute bonus range an enchantment of this type can give. */
+		AttributesRange const& attributes() const;
+		/* Returns the name of this enchantment type. */
 		std::string const& name() const;
-
+		/* Generates an enchantment instance of this enchantment type.
+		@param[in] equipment_id: The id of the equipment that is to be enchanted.
+		@param[in] gen: The generation parameters needed for (re-) generating an enchantment.
+		@return: the generated enchantment. */
 		Enchantment generate(id_t equipment_id, Generated const& gen) const;
 	};
 
-	class Enchantment : public Generated, public QualityDurability
+	/* Describes an enchantment instance.
+	The values of an enchantment are influenced by its quality and durability. */
+	class Enchantment : public Generated, public QDValue
 	{
-		unsigned m_type;
+		/* The id of the enchantment descriptor used to generate this enchantment. */
+		id_t m_type;
+		/* The id of the equipment instance that has this enchantment. */
 		id_t m_equipment;
-		
-		attrs_t m_base_add;
-		factors_t m_base_mul;
+		/* The attributes this enchantment grants. */
+		Attributes m_attributes;
 	public:
 		Enchantment(
 			Generated const& gen_params,
-			QualityDurability const& quality_durability,
+			QDValue const& quality_durability,
 			id_t equipment,
 			unsigned type,
-			attrs_t const& base_add,
-			factors_t const& base_mul);
+			Attributes const& attributes);
 		
-		unsigned type() const;
+		/* Returns the id of the enchantment descriptor used to generate this enchantment. */
+		id_t type() const;
+		/* Returns the id of the equipment that has this enchantment. */
 		id_t equipment() const;
-
-		attrs_t const& base_add() const;
-		factors_t const& base_mul() const;
+		/* Returns the attributes this enchantment grants. */
+		Attributes const& attributes() const;
 	};
 
 }

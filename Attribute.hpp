@@ -17,20 +17,37 @@ namespace rlrpg
 		Armor,
 
 		Evasion,
-		Accuracy,
-
-		rlrpg_last(Luck)
+		rlrpg_last(Accuracy)
 	};
 
 	typedef int attr_t;
 	typedef float factor_t;
 
+	typedef unsigned level_t;
+
 	typedef math::vec<rlrpgenumcount(Attr), attr_t> attrs_t;
-	typedef math::vec<rlrpgenumcount(Attr), factor_t> factors_t;
 
-	attrs_t apply_attribs(attrs_t const& base, attrs_t const& add, factors_t const& mul);
+	struct Attributes
+	{
+		attrs_t
+			flat,
+			relative;
 
-	factor_t luck_factor(attr_t luck);
+		Attributes(attrs_t const& flat, attrs_t const& relative);
+
+		attrs_t combine() const;
+		attr_t combine(Attr which) const;
+		Attributes multiply(factor_t factor) const;
+	};
+
+	struct AttributesRange
+	{
+		Attributes base, range;
+
+		AttributesRange(Attributes const& base, Attributes const& range);
+	};
+
+	attr_t apply_relative(attr_t base, attr_t relative);
 }
 
 #endif

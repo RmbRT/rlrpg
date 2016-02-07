@@ -1,6 +1,8 @@
 #ifndef __rlrpg_itemtype_hpp_defined
 #define __rlrpg_itemtype_hpp_defined
 
+#include "defines.hpp"
+
 namespace rlrpg
 {
 	enum class EquipmentType
@@ -23,7 +25,7 @@ namespace rlrpg
 		Bow,
 		Staff,
 
-		Shield
+		rlrpg_last(Shield)
 	};
 }
 

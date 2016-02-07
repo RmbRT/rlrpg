@@ -24,9 +24,7 @@ namespace rlrpg
 
 	noisef_t RNG::roll_dicef(noisef_t sides)
 	{
-		noisef_t ret = rlrpg::roll_dicef(sides, nextCoord());
-		std::cout << ret << '\n';
-		return ret;
+		return rlrpg::roll_dicef(sides, nextCoord());
 	}
 	noisef_t RNG::roll_dicesf(size_t count, noisef_t sides)
 	{

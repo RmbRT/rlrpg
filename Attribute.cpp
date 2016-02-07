@@ -1,16 +1,32 @@
 #include "Attribute.hpp"
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <cmath>
 
 namespace rlrpg
 {
-	attrs_t apply_attribs(attrs_t const& base, attrs_t const& add, factors_t const& mul)
+	Attributes::Attributes(attrs_t const& flat, attrs_t const& relative):flat(flat), relative(relative) { }
+
+	attrs_t Attributes::combine() const
 	{
-		attrs_t added = base+add;
-		return added += math::scale(added, mul);
+		attrs_t result;
+		for(unsigned i = attrs_t::DIM; i--;)
+			result[i] = apply_relative(flat[i], relative[i]);
+		return result;
 	}
 
-	factor_t luck_factor(attr_t luck)
+	attr_t Attributes::combine(Attr which) const
 	{
-		return std::fma(factor_t(luck),factor_t(1)/1000, factor_t(1));
+		return apply_relative(flat[size_t(which)], relative[size_t(which)]);
+	}
+
+	Attributes Attributes::multiply(factor_t factor) const
+	{
+		return Attributes(flat * factor, relative * factor);
+	}
+
+	attr_t apply_relative(attr_t base, attr_t relative)
+	{
+		return base + (base * relative) / 100;
 	}
 }

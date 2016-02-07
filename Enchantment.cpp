@@ -4,77 +4,56 @@
 namespace rlrpg
 {
 	EnchantmentDesc::EnchantmentDesc(
-		unsigned id,
+		id_t id,
 		std::string name,
-		Rarity rarity,
 		unsigned allowed_flags,
-		attrs_t const& add_min,
-		attrs_t const& add_range,
-		factors_t const& mul_min,
-		factors_t const& mul_range) :
+		level_t level,
+		AttributesRange const& attributes) :
 		m_id(id),
 		m_name(std::move(name)),
-		m_rarity(rarity),
-		m_allowed_flags(m_allowed_flags),
-		m_add_min(add_min),
-		m_add_range(add_range),
-		m_mul_min(mul_min),
-		m_mul_range(mul_range) { }
+		m_allowed_flags(allowed_flags),
+		m_level(level),
+		m_attributes(attributes) { }
 
 	bool EnchantmentDesc::allowed_for(EquipmentType type) const { return m_allowed_flags & (1<<int(type)); }
-	
-	Rarity EnchantmentDesc::rarity() const { return m_rarity; }
-	
-	attrs_t const& EnchantmentDesc::add_min() const { return m_add_min; }
-	attrs_t const& EnchantmentDesc::add_range() const { return m_add_range; }
 
-	
-	factors_t const& EnchantmentDesc::mul_min() const { return m_mul_min; }
-	factors_t const& EnchantmentDesc::mul_range() const { return m_mul_range; }
+	AttributesRange const& EnchantmentDesc::attributes() const { return m_attributes; }
 
 	std::string const& EnchantmentDesc::name() const { return m_name; }
 
 	Enchantment EnchantmentDesc::generate(id_t equipment_id, Generated const& gen) const
 	{
-		factor_t const luck_factor = rlrpg::luck_factor(gen.gen_luck());
 		RNG rng = noise_coord(math::vec<2,noise_coord_t>({equipment_id,gen.gen_id()}));
 
-		QualityDurability qd(rng.roll_dice(1 + (size_t(m_rarity)<<2)), 0);
-		qd.inc_durability(1+rng.roll_dice(qd.max_durability()));
+		QDValue qd;
 
-		attrs_t base_add = m_add_min;
-		factors_t base_mul = m_mul_min;
+		Attributes base(m_attributes.base);
 
 		for(unsigned i = rlrpgenumcount(Attr); i--;)
-			base_add[i] += rng.roll_dicef(1) * luck_factor * m_add_range[i];
+			base.flat[i] += rng.roll_dice(m_attributes.range.flat[i] +1);
 
 		for(unsigned i = rlrpgenumcount(Attr); i--;)
-			base_mul[i] += rng.roll_dicef(1) * luck_factor * m_mul_range[i];
+			base.relative[i] += rng.roll_dice(m_attributes.range.relative[i] +1);
 		
 		return Enchantment(
 			gen,
 			qd,
 			equipment_id,
 			m_id,
-			base_add,
-			base_mul);
+			base);
 	}
 
 	Enchantment::Enchantment(
 		Generated const& gen_params,
-		QualityDurability const& quality_durability,
+		QDValue const& quality_durability,
 		id_t equipment,
 		unsigned type,
-		attrs_t const& base_add,
-		factors_t const& base_mul):
-		Generated(
-			gen_params.gen_id(),
-			gen_params.gen_luck()),
-		QualityDurability(quality_durability),
+		Attributes const& attributes):
+		Generated(gen_params),
+		QDValue(quality_durability),
 		m_equipment(equipment),
 		m_type(type),
-		m_base_add(base_add),
-		m_base_mul(base_mul) { }
+		m_attributes(attributes) { }
 
 	unsigned Enchantment::type() const
 	{
@@ -86,15 +65,9 @@ namespace rlrpg
 		return m_equipment;
 	}
 
-
-	attrs_t const& Enchantment::base_add() const
+	Attributes const& Enchantment::attributes() const
 	{
-		return m_base_add;
-	}
-
-	factors_t const& Enchantment::base_mul() const
-	{
-		return m_base_mul;
+		return m_attributes;
 	}
 
 }

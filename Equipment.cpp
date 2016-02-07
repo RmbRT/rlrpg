@@ -5,93 +5,77 @@
 namespace rlrpg
 {
 	EquipmentDesc::EquipmentDesc(
-		unsigned id,
+		id_t id,
 		std::string name,
 		EquipmentType type,
-		attrs_t const& add_min,
-		attrs_t const& add_range,
-		factors_t const& mul_min,
-		factors_t const& mul_range):
+		level_t level,
+		AttributesRange const& attributes):
 		m_id(id),
 		m_name(std::move(name)),
 		m_type(type),
-		m_add_min(add_min),
-		m_add_range(add_range),
-		m_mul_min(mul_min),
-		m_mul_range(mul_range) { }
+		m_level(level),
+		m_attributes(attributes) { }
 
-	unsigned EquipmentDesc::id() const { return m_id; }
+	id_t EquipmentDesc::id() const { return m_id; }
 	EquipmentType EquipmentDesc::type() const { return m_type; }
+	level_t EquipmentDesc::level() const { return m_level; }
 
-	attrs_t const& EquipmentDesc::add_min() const { return m_add_min; }
-	attrs_t const& EquipmentDesc::add_range() const { return m_add_range; }
-
-	factors_t const& EquipmentDesc::mul_min() const { return m_mul_min; }
-	factors_t const& EquipmentDesc::mul_range() const { return m_mul_range; }
+	AttributesRange const& EquipmentDesc::attributes() const { return m_attributes; }
 
 	std::string const& EquipmentDesc::name() const { return m_name; }
 
-	Equipment EquipmentDesc::generate(Generated const& gen, LogicAssets const& db) const
+	Equipment EquipmentDesc::generate(Generated const& gen, LogicAssets const& db, level_t level) const
 	{
-		static noisef_t const probabilities[] = { 0.9000, 0.9900, 0.9990, 0.9999 };
-		/* The luck factor for roll values (Attr::Luck). */
-		noisef_t const luck_factor = rlrpg::luck_factor(gen.gen_luck());
+		assert(level >= m_level && "tried to create an equipment with a level lower than its descriptor's requirement.");
+
+		static noise_t const enchantment_probs[] = { 5000, 900, 95, 5 };
 
 		RNG rng = noise_coord_t(gen.gen_id());
-		
-		Rarity rarity = Rarity::__last;
 
-		
-		{	/* Roll for the rarity of the item from a list of probabilities. */
-			noisef_t roll = rng.roll_dicef(1) * luck_factor;
+		QDValue qd(0, 0, 0);
+		qd.full_repair();
 
-			for(int i = _countof(probabilities); i--;)
-				if(roll < probabilities[i])
-				{
-					rarity = (Rarity)i;
-					break;
-				}
-		}	/* /rarity roll. */
-
-		QualityDurability qd(rng.roll_dice(1 + (size_t(rarity)<<2)), 0);
-		qd.inc_durability(1+rng.roll_dice(qd.max_durability()));
-
-
-		attrs_t base_add = m_add_min;
-		factors_t base_mul = m_add_min;
+		Attributes base(m_attributes.base);
 
 		/* Roll the flat stats of the equipment. */
 		for(unsigned i = rlrpgenumcount(Attr); i--;)
-			base_add[i] += std::fmin(noisef_t(1), rng.roll_dicef(1) * luck_factor) * m_add_range[i];
+			base.flat[i] += rng.roll_dice(m_attributes.range.flat[i]+1);
 		/* Roll the relative stats of the equipment. */
 		for(unsigned i = rlrpgenumcount(Attr); i--;)
-			base_mul[i] += std::fmin(noisef_t(1), rng.roll_dicef(1) * luck_factor) * m_mul_range[i];
+			base.relative[i] += rng.roll_dice(m_attributes.range.relative[i]+1);
 
-		std::vector<Enchantment> enchantments;
-		{	/* Roll the enchantments of the equipment. */
+		size_t ench_count = 0;
+		{
+			noise_t const roll = rng.roll_dice(100000);
+			for(int i = _countof(enchantment_probs); i--;)
+				if(roll <= enchantment_probs[i])
+					ench_count = i+1;
+		}
 
-			size_t const ench_count = rng.roll_dice(size_t(rarity)+1);
+		std::vector<Enchantment> enchs;
+		enchs.reserve(ench_count);
 
-			enchantments.reserve(ench_count);
+		while(ench_count--)
+		{
+			
+			size_t suitable = 0;
+			for(EnchantmentDesc const& ed: db.enchantment_descs())
+				if(ed.allowed_for(m_type) && ed.level() <= )
+					suitable++;
+		
+			if(!suitable)
+			{
+				enchs.clear();
+				ench_count = 0;
+				break;
+			}
 
-			size_t suitable_enchantments = 0;
-			for(EnchantmentDesc const& ench : db.enchantment_descs())
-				if(ench.allowed_for(m_type) && size_t(ench.rarity()) <= size_t(rarity))
-					suitable_enchantments++;
-			if(suitable_enchantments)
-				for(size_t ench = 0; ench < ench_count; ench++)
+			suitable = rng.roll_dice(suitable+1);
+
+			for(EnchantmentDesc const& ed: db.enchantment_descs())
+				if(ed.allowed_for(m_type) && ed.level() <= level && !suitable--)
 				{
-					size_t index = rng.roll_dice(suitable_enchantments);
-
-					for(EnchantmentDesc const& ench: db.enchantment_descs())
-						if(ench.allowed_for(m_type) && size_t(ench.rarity()) <= size_t(rarity) && !index--)
-						{
-							enchantments.push_back(
-								ench.generate(
-									gen.gen_id(),
-									Generated(enchantments.size(), gen.gen_luck())));
-							break;
-						}
+					enchs.push_back(ed.generate(gen.gen_id(), Generated(enchs.size())));
 				}
 		}
 
@@ -100,96 +84,85 @@ namespace rlrpg
 			gen,
 			qd,
 			m_id,
-			m_type,
-			(id_t)enchantments.size(),
-			rarity,
-			base_add,
-			base_mul,
-			std::move(enchantments));
+			enchs.size(),
+			base,
+			std::move(enchs),
+			level);
 	}
 
 	Equipment::Equipment(
 		Generated const& gen_params,
-		QualityDurability const& quality_durability,
-		unsigned desc,
-		EquipmentType type,
+		QDValue const& quality_durability,
+		id_t descriptor,
 		id_t enchantment_counter,
-		Rarity rarity,
-		attrs_t const& base_add,
-		factors_t const& base_mul,
-		std::vector<Enchantment> enchantments):
-		Generated(
-			gen_params.gen_id(),
-			gen_params.gen_luck()),
-		QualityDurability(quality_durability),
-		m_desc(desc),
-		m_type(type),
+		Attributes const& attributes,
+		std::vector<Enchantment> enchantments,
+		level_t level):
+		Generated(gen_params),
+		QDValue(quality_durability),
+		m_descriptor(descriptor),
 		m_enchantment_counter(enchantment_counter),
-		m_rarity(rarity),
-		m_base_add(base_add),
-		m_base_mul(base_mul),
-		m_enchantments(std::move(enchantments)) { }
+		m_attributes(attributes),
+		m_enchantments(std::move(enchantments)),
+		m_level(level) { }
 
 	Equipment::Equipment(Equipment&& move):
 		Generated(move),
-		QualityDurability(move),
-		m_desc(move.m_desc),
-		m_type(move.m_type),
+		QDValue(move),
+		m_descriptor(move.m_descriptor),
 		m_enchantment_counter(move.m_enchantment_counter),
-		m_rarity(move.m_rarity),
-		m_base_add(move.m_base_add),
-		m_base_mul(move.m_base_mul),
-		m_enchantments(std::move(move.m_enchantments)) { }
+		m_attributes(move.m_attributes),
+		m_enchantments(std::move(move.m_enchantments)),
+		m_level(move.m_level) { }
 
 	Equipment & Equipment::operator=(Equipment &&move)
 	{
 		if(this == &move)
 			return *this;
 
-		static_cast<Generated&>(*this)= move;
-		static_cast<QualityDurability&>(*this) = move;
-		m_desc = move.m_desc;
-		m_type = move.m_type;
+		static_cast<Generated&>(*this) = move;
+		static_cast<QDValue&>(*this) = move;
+		m_descriptor = move.m_descriptor;
 		m_enchantment_counter = move.m_enchantment_counter;
-		m_rarity = move.m_rarity;
-		m_base_add = move.m_base_add;
-		m_base_mul = move.m_base_mul;
+		m_attributes = move.m_attributes;
 		m_enchantments = std::move(move.m_enchantments);
+		m_level = move.m_level;
 
 		return *this;
 	}
 
 
-	unsigned Equipment::desc() const { return m_desc; }
-
-	EquipmentType Equipment::type() const { return m_type; }
-	Rarity Equipment::rarity() const { return m_rarity; }
+	unsigned Equipment::descriptor() const { return m_descriptor; }
 	
-	attrs_t const& Equipment::base_add() const { return m_base_add; }
-	factors_t const& Equipment::base_mul() const { return m_base_mul; }
+	Attributes const& Equipment::base_attributes() const { return m_attributes; }
 
-	attrs_t Equipment::enchantments_add() const
+	Attributes Equipment::enchantment_attributes() const
 	{
-		attrs_t add(0);
+		Attributes attrs(attrs_t(0), attrs_t(0));
+
 		for(Enchantment const& ec : m_enchantments)
 			if(!ec.broken())
-				add += ec.base_add() * ec.quality_factor();
-		return add;
+			{
+				attrs.flat += ec.attributes().flat * ec.quality_factor();
+				attrs.relative += ec.attributes().relative * ec.quality_factor();
+			}
+		return attrs;
 	}
 
-	factors_t Equipment::enchantments_mul() const
+	attrs_t Equipment::enchantments_relative() const
 	{
-		factors_t mul(0);
+		attrs_t relative(0);
 		for(Enchantment const& ec : m_enchantments)
 			if(!ec.broken())
-				mul += ec.base_mul() * ec.quality_factor();
-		return mul;
+				relative += ec.base_relative() * ec.quality_factor();
+		return relative;
 	}
 
 	std::vector<Enchantment> const& Equipment::enchantments() const { return m_enchantments; }
 
 	void Equipment::enchant(EnchantmentDesc const& enchantment, attr_t luck)
 	{
-		enchantment.generate(gen_id(), Generated(m_enchantment_counter++, luck));
+		assert(enchantment.rarity() <= gen_rarity() && "Tried to enchant a lower rarity equipment with a higher rarity enchantment.");
+		enchantment.generate(gen_id(), Generated(m_enchantment_counter++, luck, enchantment.rarity()));
 	}
 }
