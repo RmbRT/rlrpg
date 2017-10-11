@@ -1,5 +1,7 @@
 #include "QDValue.hpp"
 
+#include <cassert>
+
 namespace rlrpg
 {
 	QDValue::QDValue():

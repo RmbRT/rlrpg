@@ -5,35 +5,32 @@
 namespace rlrpg
 {
 	EquipmentSlot::EquipmentSlot():
-		m_used(false) { }
-	EquipmentSlot::EquipmentSlot(Equipment const& equipment):
-		m_used(true),
-		m_equipment(equipment) { }
+		m_equipment(kEmpty) { }
+	EquipmentSlot::EquipmentSlot(Equipment && equipment):
+		m_equipment(std::move(equipment)) { }
 
 	Equipment * EquipmentSlot::equipment()
 	{
-		return m_used ? &m_equipment : nullptr;
+		return m_equipment ? &m_equipment() : nullptr;
 	}
 
 	Equipment const * EquipmentSlot::equipment() const
 	{
-		return m_used ? &m_equipment : nullptr;
+		return m_equipment ? &m_equipment() : nullptr;
 	}
 
-	void EquipmentSlot::set(Equipment const& equipment)
+	void EquipmentSlot::set(Equipment && equipment)
 	{
-		assert(!m_used && "Attempted to put an equipment into a slot that already had an item equipped.");
+		assert(!m_equipment && "Attempted to put an equipment into a slot that already had an item equipped.");
 
-		m_used = true;
-
-		m_equipment = equipment;
+		m_equipment = std::move(equipment);
 	}
 
 	void EquipmentSlot::clear()
 	{
-		m_used = false;
+		m_equipment = kEmpty;
 	}
-		
+
 
 	std::vector<Equipment> & Inventory::stored_equipment()
 	{
@@ -45,9 +42,9 @@ namespace rlrpg
 		return m_stored_equipment;
 	}
 
-	void Inventory::store(Equipment const& equipment)
+	void Inventory::store(Equipment && equipment)
 	{
-		m_stored_equipment.push_back(equipment);
+		m_stored_equipment.push_back(std::move(equipment));
 	}
 
 	void Inventory::unstore(size_t index)
@@ -60,7 +57,7 @@ namespace rlrpg
 		assert(index < m_stored_equipment.size());
 		assert(!m_worn[size_t(slot)].equipment());
 
-		m_worn[size_t(slot)].set(m_stored_equipment[index]);
+		m_worn[size_t(slot)].set(std::move(m_stored_equipment[index]));
 		unstore(index);
 	}
 
@@ -68,7 +65,7 @@ namespace rlrpg
 	{
 		assert(m_worn[size_t(slot)].equipment());
 
-		store(*m_worn[size_t(slot)].equipment());
+		store(std::move(*m_worn[size_t(slot)].equipment()));
 		m_worn[size_t(slot)].clear();
 	}
 
@@ -82,30 +79,17 @@ namespace rlrpg
 		return m_worn[size_t(slot)].equipment();
 	}
 
-	attrs_t Inventory::worn_add() const
+	Attributes Inventory::worn_attributes() const
 	{
-		attrs_t add(0);
+		attrs_t flat, relative;
 		for(EquipmentSlot const& es : m_worn)
 			if(Equipment const * eq = es.equipment())
-				if(!eq->broken())
-				{
-					add += eq->base_add() * eq->quality_factor();
-					add += eq->enchantments_add();
-				}
+			{
+				Attributes eq_attrs = eq->attributes();
+				flat += eq_attrs.flat;
+				relative += eq_attrs.relative;
+			}
 
-		return add;
-	}
-
-	factors_t Inventory::worn_mul() const
-	{
-		factors_t mul(0);
-		for(EquipmentSlot const& es : m_worn)
-			if(Equipment const * eq = es.equipment())
-				if(!eq->broken())
-				{
-					mul += eq->base_mul() * eq->quality_factor();
-					mul += eq->enchantments_mul();
-				}
-		return mul;
+		return { flat, relative };
 	}
 }

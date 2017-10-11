@@ -3,7 +3,7 @@
 
 #include "../defines.hpp"
 
-#include <crtdefs.h>
+#include <cstddef>
 #include <cmath>
 
 #if __cplusplus > 201103l
@@ -19,10 +19,10 @@ namespace rlrpg
 {
 	namespace math
 	{
-		template<unsigned DIM, typename T>
+		template<std::size_t DIM, typename T>
 		struct vec
 		{
-			enum { DIM = DIM };
+			enum { Dimension = DIM };
 			typedef T array[DIM];
 
 			vec() = default;
@@ -33,7 +33,7 @@ namespace rlrpg
 			template<class O>
 			vec(vec<DIM,O> const& v) { for(T & val : m_v) val = (T const&) v; }
 
-			template<unsigned LOWERDIM>
+			template<std::size_t LOWERDIM>
 			vec(vec<LOWERDIM,T> const& lower, vec<DIM-LOWERDIM, T> const& upper)
 			{
 				subvec<LOWERDIM,0>() = lower;
@@ -48,18 +48,18 @@ namespace rlrpg
 			forceinline T& operator[](size_t i) { assert(i<DIM); return m_v[i]; }
 			forceinline T const& operator[](size_t i) const { assert(i<DIM); return m_v[i]; }
 #endif
-			template<unsigned LOWERDIM>
+			template<std::size_t LOWERDIM>
 			forceinline operator vec<LOWERDIM, T> &() { return subvec<LOWERDIM>(); }
-		
-			template<unsigned LOWERDIM>
+
+			template<std::size_t LOWERDIM>
 			forceinline operator vec<LOWERDIM, T> const&() const { return subvec<LOWERDIM>(); }
-		
-			template<unsigned LOWERDIM, unsigned OFFSET = 0>
+
+			template<std::size_t LOWERDIM, std::size_t OFFSET = 0>
 			forceinline vec<LOWERDIM,T> & subvec() { static_assert(OFFSET + LOWERDIM <= DIM && LOWERDIM > 0, "invalid template parameter.");
 				return reinterpret_cast<vec<LOWERDIM,T> &>((*this)[OFFSET]);
 			}
 
-			template<unsigned LOWERDIM, unsigned OFFSET = 0>
+			template<std::size_t LOWERDIM, std::size_t OFFSET = 0>
 			forceinline vec<LOWERDIM,T> const& subvec() const { static_assert(OFFSET + LOWERDIM <= DIM && LOWERDIM > 0, "invalid template parameter.");
 				return reinterpret_cast<vec<LOWERDIM,T> const&>((*this)[OFFSET]);
 			}
@@ -92,7 +92,7 @@ namespace rlrpg
 
 
 		/* Manhattan distance of a vector. Equals to the sum of the absolute value of all components. */
-		template<unsigned DIM, typename T>
+		template<std::size_t DIM, typename T>
 		forceinline T man(vec<DIM,T> const& v)
 		{
 			T dist = 0;
@@ -100,80 +100,80 @@ namespace rlrpg
 				dist += std::abs(t);
 			return dist;
 		}
-		
-		template<unsigned DIM, typename T>
+
+		template<std::size_t DIM, typename T>
 		forceinline vec<DIM, T> operator+(vec<DIM,T> const& a, vec<DIM,T> const& b)
 		{
 			vec<DIM, T> temp;
-			for(unsigned i = DIM; i--;)
+			for(std::size_t i = DIM; i--;)
 				temp[i] = a[i] + b[i];
 
 			return temp;
 		}
 
-		template<unsigned DIM, typename T>
+		template<std::size_t DIM, typename T>
 		forceinline vec<DIM, T> &operator+=(vec<DIM,T> &self, vec<DIM,T> const& rhs)
 		{
-			for(unsigned i = DIM; i--;)
+			for(std::size_t i = DIM; i--;)
 				self[i] += rhs[i];
 
 			return self;
 		}
 
-		template<unsigned DIM, typename T>
+		template<std::size_t DIM, typename T>
 		forceinline vec<DIM, T> operator-(vec<DIM,T> const& a, vec<DIM,T> const& b)
 		{
 			vec<DIM,T> temp;
-			for(unsigned i = DIM; i--;)
+			for(std::size_t i = DIM; i--;)
 				temp[i] = a[i] - b[i];
 
 			return temp;
 		}
 
-		template<unsigned DIM, typename T>
+		template<std::size_t DIM, typename T>
 		forceinline T dot(vec<DIM,T> const& a, vec<DIM,T> const& b)
 		{
 			T temp = 0;
-			for(unsigned i = DIM; i--;)
+			for(std::size_t i = DIM; i--;)
 				temp += a[i] * b[i];
 
 			return temp;
 		}
 
-		template<unsigned DIM, typename T>
+		template<std::size_t DIM, typename T>
 		forceinline bool operator==(vec<DIM,T> const& a, vec<DIM,T> const& b)
 		{
-			for(unsigned i = DIM; i--;)
+			for(std::size_t i = DIM; i--;)
 				if(a[i] != b[i])
 					return false;
 			return true;
 		}
-		template<unsigned DIM, typename T>
+		template<std::size_t DIM, typename T>
 		forceinline bool operator!=(vec<DIM,T> const& a, vec<DIM,T> const& b)
 		{
-			for(unsigned i = DIM; i--;)
+			for(std::size_t i = DIM; i--;)
 				if(a[i] != b[i])
 					return true;
 			return false;
 		}
-		template<unsigned DIM, typename T, typename U>
+		template<std::size_t DIM, typename T, typename U>
 		forceinline vec<DIM,T> scale(vec<DIM,T> const& a, vec<DIM,U> const& b)
 		{
 			vec<DIM,T> temp;
-			for(unsigned i = DIM; i--;)
+			for(std::size_t i = DIM; i--;)
 				temp[i] = a[i] * b[i];
 			return temp;
 		}
 
-		template<unsigned DIM, typename T, typename U>
+		template<std::size_t DIM, typename T, typename U>
 		forceinline vec<DIM,T> &operator*=(vec<DIM,T> &self, U const& factor)
 		{
-			for(unsigned i = DIM; i--;)
+			for(std::size_t i = DIM; i--;)
 				self[i] *= factor;
 			return self;
 		}
 
-		template<unsigned DIM, typename T, typename U>
+		template<std::size_t DIM, typename T, typename U>
 		forceinline vec<DIM,T> operator*(vec<DIM,T> const& self, U const& factor)
 		{
 			vec<DIM,T> temp(self);
@@ -181,27 +181,27 @@ namespace rlrpg
 			return temp;
 		}
 
-		template<unsigned DIM, typename T, typename U>
+		template<std::size_t DIM, typename T, typename U>
 		forceinline vec<DIM,T> operator*(U const& factor, vec<DIM,T> const& self)
 		{
 			return vec<DIM,T>(self) *= factor;
 		}
 
-		template<unsigned DIM, typename T, typename U>
+		template<std::size_t DIM, typename T, typename U>
 		forceinline vec<DIM,T> &operator/=(vec<DIM,T> &self, U const& factor)
 		{
-			for(T& v: m_v)
+			for(T& v: self.m_v)
 				v /= factor;
 			return self;
 		}
 
-		template<unsigned DIM, typename T, typename U>
+		template<std::size_t DIM, typename T, typename U>
 		forceinline vec<DIM,T> operator/(vec<DIM,T> const& self, U const& factor)
 		{
 			return vec<DIM,T>(self) /= factor;
 		}
 
-		template<unsigned DIM, typename T, typename U>
+		template<std::size_t DIM, typename T, typename U>
 		forceinline vec<DIM,T> operator/(U const& factor, vec<DIM,T> const& self)
 		{
 			return vec<DIM,T>(self) /= factor;

@@ -88,9 +88,6 @@ namespace rlrpg
 			std::vector<Enchantment> enchantments,
 			level_t level);
 
-		Equipment(Equipment&&);
-		Equipment & operator=(Equipment&&);
-		
 		/* Returns the id of this equipment's type. */
 		id_t descriptor() const;
 
@@ -99,6 +96,9 @@ namespace rlrpg
 		Attributes const& base_attributes() const;
 		/* Returns the sum of the attributes added by the enchantments of the equipment. */
 		Attributes enchantment_attributes() const;
+
+		/* Returns the combined attributes from enchantments and base attributes, and quality level. */
+		Attributes attributes() const;
 
 		/* Returns this equipment's enchantments. */
 		std::vector<Enchantment> const& enchantments() const;
@@ -109,7 +109,7 @@ namespace rlrpg
 		/* Enchants this equipment.
 		@side-effect: Adds a new enchantment to this items enchantment list.
 		@param[in] enchantment: the enchantment descriptor of which to generate a new instance. */
-		void enchant(EnchantmentDesc const& enchantment);
+		void enchant(EnchantmentDesc const& enchantment, attr_t luck);
 		/* Removes an enchantment from the equipment.
 		@param[in] index: the index in the enchantment list of the enchantment to remove.
 		@side-effect: Removes the enchantment with the index <index> from the enchantment list. */

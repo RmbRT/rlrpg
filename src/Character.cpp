@@ -5,10 +5,10 @@ namespace rlrpg
 	Character::Character(
 		unsigned level,
 		attrs_t const& base_attributes,
-		Inventory const& inventory):
+		Inventory && inventory):
 		m_level(level),
 		m_base_attributes(base_attributes),
-		m_inventory(inventory),
+		m_inventory(std::move(inventory)),
 		m_health(base_attributes[size_t(Attr::Health)]) { }
 
 	unsigned Character::health() const { return m_health; }

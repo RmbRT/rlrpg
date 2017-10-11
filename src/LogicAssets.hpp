@@ -28,6 +28,9 @@ namespace rlrpg
 
 		Equipment generateEquipment(EquipmentType type, level_t level);
 		Equipment generateEquipment(EquipSlot slot, level_t level);
+
+		Enchantment generateEnchantment(id_t equipment_descriptor, level_t level);
+
 	};
 }
 

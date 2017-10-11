@@ -1,7 +1,4 @@
 #include "Attribute.hpp"
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <cmath>
 
 namespace rlrpg
 {
@@ -10,7 +7,7 @@ namespace rlrpg
 	attrs_t Attributes::combine() const
 	{
 		attrs_t result;
-		for(unsigned i = attrs_t::DIM; i--;)
+		for(unsigned i = attrs_t::Dimension; i--;)
 			result[i] = apply_relative(flat[i], relative[i]);
 		return result;
 	}

@@ -18,7 +18,7 @@ namespace rlrpg
 		Character(
 			unsigned level,
 			attrs_t const& base_attributes,
-			Inventory const& inventory);
+			Inventory && inventory);
 
 		unsigned health() const;
 		unsigned level() const;

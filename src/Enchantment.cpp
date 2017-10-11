@@ -23,7 +23,7 @@ namespace rlrpg
 
 	Enchantment EnchantmentDesc::generate(id_t equipment_id, Generated const& gen) const
 	{
-		RNG rng = noise_coord(math::vec<2,noise_coord_t>({equipment_id,gen.gen_id()}));
+		RNG rng = noise_coord<2>(math::vec<2,noise_coord_t>({equipment_id,gen.gen_id()}));
 
 		QDValue qd;
 
@@ -34,7 +34,7 @@ namespace rlrpg
 
 		for(unsigned i = rlrpgenumcount(Attr); i--;)
 			base.relative[i] += rng.roll_dice(m_attributes.range.relative[i] +1);
-		
+
 		return Enchantment(
 			gen,
 			qd,

@@ -77,7 +77,7 @@ namespace rlrpg
 			id_t equipment,
 			unsigned type,
 			Attributes const& attributes);
-		
+
 		/* Returns the id of the enchantment descriptor used to generate this enchantment. */
 		id_t type() const;
 		/* Returns the id of the equipment that has this enchantment. */

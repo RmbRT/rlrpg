@@ -1,9 +1,11 @@
 #ifndef __rlrpg_generated_hpp_defined
 #define __rlrpg_generated_hpp_defined
 
+#include <cinttypes>
+
 namespace rlrpg
 {
-	typedef unsigned id_t;
+	typedef std::uint32_t id_t;
 
 	class Generated
 	{

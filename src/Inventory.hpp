@@ -2,22 +2,22 @@
 #define __rlrpg_inventory_hpp_defined
 
 #include "Equipment.hpp"
+#include "util/Optional.hpp"
 #include <vector>
 
 namespace rlrpg
 {
 	class EquipmentSlot
 	{
-		bool m_used;
-		Equipment m_equipment;
+		Optional<Equipment> m_equipment;
 	public:
 		EquipmentSlot();
-		EquipmentSlot(Equipment const& equipment);
+		EquipmentSlot(Equipment && equipment);
 
 		Equipment * equipment();
 		Equipment const * equipment() const;
 
-		void set(Equipment const& equipment);
+		void set(Equipment && equipment);
 		void clear();
 	};
 
@@ -46,7 +46,7 @@ namespace rlrpg
 		std::vector<Equipment> & stored_equipment();
 		std::vector<Equipment> const& stored_equipment() const;
 
-		void store(Equipment const& equipment);
+		void store(Equipment && equipment);
 		void unstore(size_t index);
 
 		void wear(EquipSlot slot, size_t index);
@@ -55,8 +55,7 @@ namespace rlrpg
 		Equipment * worn(EquipSlot slot);
 		Equipment const * worn(EquipSlot slot) const;
 
-		attrs_t worn_add() const;
-		factors_t worn_mul() const;
+		Attributes worn_attributes() const;
 	};
 }
 

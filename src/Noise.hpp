@@ -18,12 +18,12 @@ namespace rlrpg
 	static noise_coord_t const noise_factors[] = { 1, 59, 20353, 1249033, 213973541 };
 
 	template<unsigned DIM>
-	noise_coord_t noise_coord(math::vec<DIM, noise_coord_t> const& val)
+	static noise_coord_t noise_coord(math::vec<DIM, noise_coord_t> const& val)
 	{
 		return math::dot(val,
 			reinterpret_cast<
 				math::vec<_countof(noise_factors), noise_coord_t> const&>
-				(noise_factors)
+				(noise_factors[0])
 			.subvec<DIM>());
 	}
 }

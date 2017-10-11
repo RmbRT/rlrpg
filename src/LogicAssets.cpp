@@ -23,8 +23,9 @@ namespace rlrpg
 
 	Equipment LogicAssets::generateEquipment(EquipmentType type, level_t level)
 	{
-		RNG rng(noise_coord(math::vec<2,noise_coord_t>({m_noise_coord++, m_item_counter})));
-		
+		math::vec<2,noise_coord_t> coord({m_noise_coord++, m_item_counter});
+		RNG rng(noise_coord<2>(coord));
+
 		size_t suitable_count = 0;
 		for(EquipmentDesc const& ed : m_equipment_descs)
 			if(ed.type() == type && ed.level() <= level)
@@ -42,8 +43,8 @@ namespace rlrpg
 
 	Equipment LogicAssets::generateEquipment(EquipSlot slot, level_t level)
 	{
-		RNG rng(noise_coord(math::vec<2,noise_coord_t>({m_noise_coord++, m_item_counter})));
-		
+		RNG rng(noise_coord<2>(math::vec<2,noise_coord_t>({m_noise_coord++, m_item_counter})));
+
 		EquipmentType type;
 
 		switch(slot)
@@ -109,25 +110,24 @@ namespace rlrpg
 	}
 
 
-	EnchantmentDesc const* LogicAssets::chooseEnchantment(id_t equipment_descriptor, level_t level)
+	Enchantment LogicAssets::generateEnchantment(id_t equipment_descriptor, level_t level)
 	{
 		RNG rng(m_noise_coord++);
 
 		EquipmentDesc & eq = m_equipment_descs[equipment_descriptor];
-		
+
 		size_t suitable = 0;
 		for(EnchantmentDesc const& ed: m_enchantment_descs)
 			if(ed.allowed_for(eq.type()) && ed.level() <= level)
 				suitable++;
-		
-		if(!suitable)
-			return nullptr;
+
+		assert(suitable && "there are no suitable enchantments available!");
 
 		suitable = rng.roll_dice(suitable+1);
 
 		for(EnchantmentDesc const& ed: m_enchantment_descs)
 			if(ed.allowed_for(eq.type()) && ed.level() <= level && !suitable--)
-				return &ed;
+				return ed.generate(equipment_descriptor, Generated(m_item_counter++));
 	}
 
 }

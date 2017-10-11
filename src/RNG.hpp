@@ -21,7 +21,7 @@ namespace rlrpg
 		@side-effect: goes to the next noise coordinate.
 		@return: the current noise coordinate. */
 		noise_coord_t nextCoord();
-		
+
 		/* Rolls a dice with <sides> sides, with values from 0 to <sides>-1.
 		@side-effect: goes to the next noise coordinate.
 		@param[in] sides: the sides of the dice to be rolled. 

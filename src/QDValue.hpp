@@ -26,7 +26,7 @@ namespace rlrpg
 			quality_t quality,
 			durability_t durability_base,
 			durability_t durability_current);
-		
+
 		/* When repairing an object. Increases
 		the durability by the given amount. */
 		void repair(durability_t increase);
