@@ -23,7 +23,7 @@ namespace rlrpg
 
 	Enchantment EnchantmentDesc::generate(id_t equipment_id, Generated const& gen) const
 	{
-		RNG rng = noise_coord<2>(math::vec<2,noise_coord_t>({equipment_id,gen.gen_id()}));
+		RNG rng = noise_coord(math::vec<noise_coord_t>(equipment_id, gen.gen_id()));
 
 		QDValue qd;
 

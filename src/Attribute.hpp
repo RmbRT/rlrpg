@@ -2,7 +2,7 @@
 #define __rlrpg_attribute_hpp_defined
 
 #include "defines.hpp"
-#include "math/vector.hpp"
+#include "math/Vector.hpp"
 
 namespace rlrpg
 {
@@ -25,7 +25,7 @@ namespace rlrpg
 
 	typedef unsigned level_t;
 
-	typedef math::vec<rlrpgenumcount(Attr), attr_t> attrs_t;
+	typedef math::Vector<rlrpgenumcount(Attr), attr_t> attrs_t;
 
 	struct Attributes
 	{

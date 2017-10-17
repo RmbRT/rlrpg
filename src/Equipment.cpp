@@ -118,8 +118,8 @@ namespace rlrpg
 		for(Enchantment const& ec : m_enchantments)
 			if(!ec.broken())
 			{
-				attrs.flat += ec.attributes().flat * ec.quality_factor();
-				attrs.relative += ec.attributes().relative * ec.quality_factor();
+				attrs.flat += ec.quality_factor() * ec.attributes().flat;
+				attrs.relative += ec.quality_factor() * ec.attributes().relative;
 			}
 		return attrs;
 	}

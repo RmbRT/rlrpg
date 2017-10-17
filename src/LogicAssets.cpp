@@ -23,8 +23,7 @@ namespace rlrpg
 
 	Equipment LogicAssets::generateEquipment(EquipmentType type, level_t level)
 	{
-		math::vec<2,noise_coord_t> coord({m_noise_coord++, m_item_counter});
-		RNG rng(noise_coord<2>(coord));
+		RNG rng=noise_coord(math::vec<noise_coord_t>(m_noise_coord++, m_item_counter));
 
 		size_t suitable_count = 0;
 		for(EquipmentDesc const& ed : m_equipment_descs)
@@ -43,7 +42,7 @@ namespace rlrpg
 
 	Equipment LogicAssets::generateEquipment(EquipSlot slot, level_t level)
 	{
-		RNG rng(noise_coord<2>(math::vec<2,noise_coord_t>({m_noise_coord++, m_item_counter})));
+		RNG rng=noise_coord(math::vec<noise_coord_t>(m_noise_coord++, m_item_counter));
 
 		EquipmentType type;
 

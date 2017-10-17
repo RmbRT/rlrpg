@@ -7,7 +7,7 @@ namespace rlrpg
 	attrs_t Attributes::combine() const
 	{
 		attrs_t result;
-		for(unsigned i = attrs_t::Dimension; i--;)
+		for(unsigned i = attrs_t::kDimension; i--;)
 			result[i] = apply_relative(flat[i], relative[i]);
 		return result;
 	}
@@ -19,7 +19,7 @@ namespace rlrpg
 
 	Attributes Attributes::multiply(factor_t factor) const
 	{
-		return Attributes(flat * factor, relative * factor);
+		return Attributes(factor * flat, factor * relative);
 	}
 
 	attr_t apply_relative(attr_t base, attr_t relative)
